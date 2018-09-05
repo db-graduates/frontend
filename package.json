@@ -22,9 +22,11 @@
     "@angular/router": "^6.1.0",
     "chart.js": "^2.7.2",
     "core-js": "^2.5.4",
+    "ng-amchart": "^1.0.1",
     "rxjs": "^6.0.0",
-    "zone.js": "~0.8.26",
-    "zingchart": "2.8.0"
+    "zingchart": "2.8.0",
+    "zingchart-angularjs": "^1.2.0",
+    "zone.js": "~0.8.26"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.7.0",

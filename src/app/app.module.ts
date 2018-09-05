@@ -6,18 +6,22 @@ import { HttpClientModule } from '@angular/common/http';
 
 import { AppComponent } from './app.component';
 import { PredictorService } from './predictor.service';
-import { StockChartComponent } from './stock-chart/stock-chart.component';
+import { AmChartModule } from "ng-amchart";
+import { StockMarketChartComponent } from './stock-market-chart/stock-market-chart.component';
+
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    StockChartComponent
+    StockMarketChartComponent
   ],
   imports: [
     BrowserModule,
     FormsModule,
     HttpModule,
-    HttpClientModule 
+    HttpClientModule,
+    AmChartModule 
   ],
   providers: [PredictorService],
   bootstrap: [AppComponent]
