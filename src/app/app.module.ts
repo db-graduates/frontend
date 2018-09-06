@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 import { PredictorService } from './predictor.service';
 import { AmChartModule } from "ng-amchart";
 import { StockMarketChartComponent } from './stock-market-chart/stock-market-chart.component';
+import { DiffStockValuesChartComponent } from './diff-stock-values-chart/diff-stock-values-chart.component';
 
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    StockMarketChartComponent
+    StockMarketChartComponent,
+    DiffStockValuesChartComponent
   ],
   imports: [
     BrowserModule,

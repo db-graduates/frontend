@@ -1,4 +1,8 @@
-#chartdiv {
-    width: 70%;
-    height: 700px;
+#chart1div {
+    width: 900px;
+    height: 600px;
+}
+#chart3div {
+    width: 900px;
+    height: 600px;
 }

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AmChartsService} from "ng-amchart";
+import { PredictorService } from '../predictor.service';
+import { DiffData } from '../model/diffData';
 
 @Component({
   selector: 'app-stock-market-chart',
@@ -9,9 +11,11 @@ import { AmChartsService} from "ng-amchart";
 export class StockMarketChartComponent implements OnInit {
 
   private chart:any;
-  private chartData = [];
+  private realData = [];
+  private predictChart:any;
+  private predictData = [];
 
-  constructor(protected amchartSvc:AmChartsService) { }
+  constructor(protected amchartSvc:AmChartsService, private _predictor: PredictorService) { }
 
   ngOnInit() {
     this.generateChartData();
@@ -19,9 +23,57 @@ export class StockMarketChartComponent implements OnInit {
 
   ngAfterViewInit() {
 
-    this.chart = this.amchartSvc.makeChart( "chartdiv", {
+    this.chart = this.amchartSvc.makeChart("chart1div", this.getChartWithData(this.realData));
+    this.predictChart = this.amchartSvc.makeChart("chart3div", this.getChartWithData(this.predictData));
+    
+  }
+
+
+  ngOnDestroy() {
+    if (this.chart) {
+      this.amchartSvc.destroyChart(this.chart);
+    }
+  }
+
+  generateChartData() {
+
+    this._predictor.predict(new Date("2018-09-07T14:00:00.900"), new Date("2018-09-09T17:34:50.900"))
+        .subscribe((data : DiffData) => {
+
+          data.predictedData.forEach(data => {
+            this.predictData.push({
+              "date": data.date,
+              "open": data.open +20,
+              "close": data.close +30,
+              "high": data.high +40,
+              "low": data.low +50,
+              "volume": data.volume +20,
+              "value": data.value +20})
+              });
+
+          data.actualData.forEach(data => {
+            this.realData.push({
+              "date": data.date,
+              "open": data.open,
+              "close": data.close,
+              "high": data.high,
+              "low": data.low,
+              "volume": data.volume,
+              "value": data.value})
+              });
+        });
+  
+  }
+
+  getChartWithData(data){
+    return {
       "type": "stock",
       "theme": "light",
+    
+      "categoryAxesSettings": {
+        "minPeriod": "mm"
+      },
+    
       "dataSets": [ {
         "fieldMappings": [ {
           "fromField": "open",
@@ -42,21 +94,12 @@ export class StockMarketChartComponent implements OnInit {
           "fromField": "value",
           "toField": "value"
         } ],
+    
         "color": "#7f8da9",
-        "dataProvider": this.chartData,
+        "dataProvider": data,
         "title": "West Stock",
         "categoryField": "date"
-      }, {
-        "fieldMappings": [ {
-          "fromField": "value",
-          "toField": "value"
-        } ],
-        "color": "#fac314",
-        "dataProvider": this.chartData,
-        "compared": true,
-        "title": "East Stock",
-        "categoryField": "date"
-      } ],
+      }],
     
     
       "panels": [ {
@@ -64,7 +107,6 @@ export class StockMarketChartComponent implements OnInit {
           "showCategoryAxis": false,
           "percentHeight": 70,
           "valueAxes": [ {
-            "id": "v1",
             "dashLength": 5
           } ],
     
@@ -88,10 +130,9 @@ export class StockMarketChartComponent implements OnInit {
             "useDataSetColors": false,
             "comparable": true,
             "compareField": "value",
-            "showBalloon": false,
-            "proCandlesticks": true
+            "showBalloon": false
           } ],
-    
+  
           "stockLegend": {
             "valueTextRegular": undefined,
             "periodValueTextComparing": "[[percents.value.close]]%"
@@ -130,89 +171,37 @@ export class StockMarketChartComponent implements OnInit {
       "chartScrollbarSettings": {
         "graph": "g1",
         "graphType": "line",
-        "usePeriod": "WW"
-      },
-    
-      "chartCursorSettings": {
-        "valueLineBalloonEnabled": true,
-        "valueLineEnabled": true
+        "usePeriod": "hh"
       },
     
       "periodSelector": {
-        "position": "bottom",
+        "position": "top",
+        "dateFormat": "YYYY-MM-DD JJ:NN",
+        "inputFieldWidth": 150,
         "periods": [ {
-          "period": "DD",
+          "period": "hh",
           "count": 1,
-          "label": "1 day"
+          "label": "1 hour",
+          "selected": true
+    
         }, {
-          "period": "DD",
+          "period": "hh",
           "count": 2,
-          "label": "2 days"
-        },
-        {
-          "period": "YTD",
-          "label": "YTD"
+          "label": "2 hours"
+        }, {
+          "period": "hh",
+          "count": 5,
+          "label": "5 hour"
+        }, {
+          "period": "hh",
+          "count": 12,
+          "label": "12 hours"
         }, {
           "period": "MAX",
-          "label": "MAX",
-          "selected": true,
+          "label": "MAX"
         } ]
-      },
-      "export": {
-        "enabled": false
       }
-    } );
-  }
-
-
-  ngOnDestroy() {
-    if (this.chart) {
-      this.amchartSvc.destroyChart(this.chart);
-    }
-  }
-
-
-
-  generateChartData() {
-    var firstDate = new Date();
-    firstDate.setHours( 0, 0, 0, 0 );
-    firstDate.setDate( firstDate.getDate() - 2000 );
-
-    for ( var i = 0; i < 2000; i++ ) {
-      var newDate = new Date( firstDate );
-
-      newDate.setDate( newDate.getDate() + i );
-
-      var open = Math.round( Math.random() * ( 30 ) + 100 );
-      var close = open + Math.round( Math.random() * ( 15 ) - Math.random() * 10 );
-
-      var low;
-      if ( open < close ) {
-        low = open - Math.round( Math.random() * 5 );
-      } else {
-        low = close - Math.round( Math.random() * 5 );
-      }
-
-      var high;
-      if ( open < close ) {
-        high = close + Math.round( Math.random() * 5 );
-      } else {
-        high = open + Math.round( Math.random() * 5 );
-      }
-
-      var volume = Math.round( Math.random() * ( 1000 + i ) ) + 100 + i;
-      var value = Math.round( Math.random() * ( 30 ) + 100 );
-
-      this.chartData[ i ] = ( {
-        "date": newDate,
-        "open": open,
-        "close": close,
-        "high": high,
-        "low": low,
-        "volume": volume,
-        "value": value
-      } );
-    }
+    };
   }
 
 
