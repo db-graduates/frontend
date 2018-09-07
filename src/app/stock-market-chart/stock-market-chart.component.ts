@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { AmChartsService} from "ng-amchart";
 import { PredictorService } from '../predictor.service';
 import { DiffData } from '../model/diffData';
+import {timer} from 'rxjs';
+import {take} from 'rxjs/operators';  
 
 @Component({
   selector: 'app-stock-market-chart',
@@ -25,6 +27,10 @@ export class StockMarketChartComponent implements OnInit {
 
     this.chart = this.amchartSvc.makeChart("chart1div", this.getChartWithData(this.realData));
     this.predictChart = this.amchartSvc.makeChart("chart3div", this.getChartWithData(this.predictData));
+
+    timer(5000, 5000).pipe().subscribe(()=>{
+      this.updateChartForRealTime();
+   })
     
   }
 
@@ -35,20 +41,56 @@ export class StockMarketChartComponent implements OnInit {
     }
   }
 
+  updateChartForRealTime() {
+    // if ( this.chart.mouseDown )
+    //   return;
+
+    var lastDate = new Date(this.chart.dataSets[ 0 ].dataProvider[ this.chart.dataSets[ 0 ].dataProvider.length - 1 ].date);
+    var now = new Date(lastDate);
+    now.setMinutes(lastDate.getMinutes() + 30);
+
+    console.log("Update from " + lastDate + " to " + now)
+
+    this._predictor.predict(lastDate, now)
+    .subscribe((data : DiffData) => {
+
+      console.log(data.actualData);
+
+      this.fillOneChartData(data.actualData, this.chart.dataSets[ 0 ].dataProvider); 
+      this.fillOneChartData(data.predictedData, this.predictChart.dataSets[ 0 ].dataProvider);
+      
+    });
+    this.chart.validateData();
+    this.predictChart.validateData();
+  }
+
+  fillOneChartData(source, target){
+    source.forEach(data => {
+      target.push({
+        "date": data.date,
+        "open": data.open,
+        "close": data.close,
+        "high": data.high,
+        "low": data.low,
+        "volume": data.volume,
+        "value": data.value})
+        });
+  }
+
   generateChartData() {
 
-    this._predictor.predict(new Date("2018-09-07T14:00:00.900"), new Date("2018-09-09T17:34:50.900"))
+    this._predictor.predict(new Date("2018-09-06T14:00:00.900"), new Date("2018-09-06T23:34:50.900"))
         .subscribe((data : DiffData) => {
 
           data.predictedData.forEach(data => {
             this.predictData.push({
               "date": data.date,
-              "open": data.open +20,
-              "close": data.close +30,
-              "high": data.high +40,
-              "low": data.low +50,
-              "volume": data.volume +20,
-              "value": data.value +20})
+              "open": data.open,
+              "close": data.close,
+              "high": data.high,
+              "low": data.low,
+              "volume": data.volume,
+              "value": data.value})
               });
 
           data.actualData.forEach(data => {

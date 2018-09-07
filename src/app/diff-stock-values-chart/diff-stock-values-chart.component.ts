@@ -41,7 +41,9 @@ export class DiffStockValuesChartComponent implements OnInit {
 
   generateChartData() {
 
-    this._predictor.predict(new Date("2018-09-07T14:00:00.900"), new Date("2018-09-07T23:34:50.900"))
+    //2018-09-07T14:00:00.900
+    //2018-09-07T23:34:50.900
+    this._predictor.predict(new Date("2018-09-06T14:00:00.900"), new Date("2018-09-06T23:34:50.900"))
         .subscribe((data : DiffData) => {
 
           this.fillOneChartData(data.predictedData, this.predictedData);

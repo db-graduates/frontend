@@ -10,7 +10,7 @@ export class PredictorService {
   constructor(private _http: HttpClient) { }
 
   predict(dateTo, dateFrom) {
-    let url = "http://localhost:8080/chart-data/diff?dateFrom=" + dateTo.toISOString() + "&dateTo=" + dateFrom.toISOString();
+    let url = "http://localhost:8083/chart-data/diff?dateFrom=" + dateTo.toISOString() + "&dateTo=" + dateFrom.toISOString();
     return this._http.get(url)
       .pipe(map(result => result));
   }
